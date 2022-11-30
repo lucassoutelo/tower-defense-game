@@ -27,7 +27,7 @@ bala_img = pygame.transform.scale(bala_img, (int(b_width * 0.1), int(b_height * 
 
 #carregar inimigos
 inimigo_animacao = []
-tipos_inimigos = ['demonio']
+tipos_inimigos = ['demonio', 'rato']
 inimigo_vida = [80]
 
 tipos_animacoes = ['andando', 'morto', 'atacando']
@@ -53,6 +53,9 @@ class Torre():
   def __init__(self, image100, x, y, scale):
     self.health = 1000
     self.max_health = self.health
+    self.fired = False
+    self.ouro = 0
+    self.pontos = 0
 
     width = image100.get_width()
     heigth = image100.get_height()
@@ -67,14 +70,13 @@ class Torre():
     x_dist = pos[0] - self.rect.midleft[0]
     y_dist = -(pos[1] - self.rect.midleft[1])
     self.angle = math.degrees(math.atan2(y_dist, x_dist))
-    self.fired = False
     
     #get mouse_click
     if pygame.mouse.get_pressed()[0] and self.fired == False:
       self.fired = True
       bala = Bala(bala_img, self.rect.midleft[0], self.rect.midleft[1], self.angle)
       grupo_balas.add(bala)
-    #resenatndo mouseclick
+    #resetando mouseclick
     if pygame.mouse.get_pressed()[0] == False:
       self.fired = False
 
@@ -108,7 +110,7 @@ class Bala(pygame.sprite.Sprite):
 
 
 #CRIAR TORRE
-torre = Torre(torreimg100, SCREEN_WIDTH - 250, SCREEN_HEIGTH - 300, 0.2)
+torre = Torre(torreimg100, SCREEN_WIDTH - 250, SCREEN_HEIGTH - 300, 0.3)
 
 #CRIAR GRUPOS
 grupo_balas = pygame.sprite.Group()
@@ -132,7 +134,7 @@ while run:
   grupo_balas.draw(screen)
 
   #desenha inimigos
-  grupo_inimigos.update(screen)
+  grupo_inimigos.update(screen, torre, grupo_balas)
 
   #movimenta balas
   grupo_balas.update()
