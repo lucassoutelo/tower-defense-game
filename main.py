@@ -1,5 +1,6 @@
 import pygame
 import math
+from inimigo import Inimigo
 
 pygame.init()
 
@@ -23,6 +24,26 @@ bala_img =  pygame.image.load('img/bala.png').convert_alpha()
 b_width = bala_img.get_width()
 b_height = bala_img.get_height()
 bala_img = pygame.transform.scale(bala_img, (int(b_width * 0.1), int(b_height * 0.1)))
+
+#carregar inimigos
+inimigo_animacao = []
+tipos_inimigos = ['demonio']
+inimigo_vida = [80]
+
+tipos_animacoes = ['andando', 'morto', 'atacando']
+
+for inimigos in tipos_inimigos:
+  #carregar animacoes
+  lista_animacoes = []
+  for animacoes in tipos_animacoes:
+    #resetar lista temporaria de imagens
+    temp_list = []
+    num_of_frames = 5
+    for i in range (num_of_frames):
+      img = pygame.image.load(f'img/inimigos/{inimigos}/{animacoes}/{i}.png').convert_alpha()
+      temp_list.append(img)
+    lista_animacoes.append(temp_list)
+  inimigo_animacao.append(lista_animacoes)
 
 #definir cores
 WHITE =  (255, 255, 255)
@@ -86,13 +107,16 @@ class Bala(pygame.sprite.Sprite):
     self.rect.y += self.dy
 
 
-
-
 #CRIAR TORRE
 torre = Torre(torreimg100, SCREEN_WIDTH - 250, SCREEN_HEIGTH - 300, 0.2)
 
 #CRIAR GRUPOS
 grupo_balas = pygame.sprite.Group()
+grupo_inimigos = pygame.sprite.Group()
+
+#CRIAR INIMIGOS
+inimigo_1 = Inimigo(inimigo_vida[0], inimigo_animacao[0], 200, SCREEN_HEIGTH - 200, 1)
+grupo_inimigos.add(inimigo_1)
 
 #JOGO EM LOOP
 run = True
@@ -106,6 +130,9 @@ while run:
   torre.Shoot()
   #desenha balas
   grupo_balas.draw(screen)
+
+  #desenha inimigos
+  grupo_inimigos.update(screen)
 
   #movimenta balas
   grupo_balas.update()
