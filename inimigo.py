@@ -6,6 +6,8 @@ class Inimigo(pygame.sprite.Sprite):
     self.alive = True
     self.speed = speed
     self.health = health
+    self.last_attack = pygame.time.get_ticks()
+    self.attack_cooldown =  500
     self.lista_animacao = lista_animacao
     self.frame_index = 0
     self.action = 0
@@ -30,7 +32,16 @@ class Inimigo(pygame.sprite.Sprite):
       #movimentar inimigo
       if self.action == 0:
         self.rect.x += self.speed
-
+      
+      #atacar
+      if self.action == 1:
+        if pygame.time.get_ticks() - self.last_attack > self.attack_cooldown:
+          target.health -= 15
+          if target.health < 0:
+            target.health = 0
+          print(target.health)
+          self.last_attack = pygame.time.get_ticks()
+      
       #checar se a vida chegou a 0
       if self.health <= 0:
         target.ouro += 100
@@ -43,7 +54,7 @@ class Inimigo(pygame.sprite.Sprite):
     surface.blit(self.image, self.rect)
 
   def update_animacao(self):
-    ANIMATION_COOLDOWN = 50
+    ANIMATION_COOLDOWN = 100
     self.image = self.lista_animacao[self.action][self.frame_index]
     if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
       self.update_time = pygame.time.get_ticks()

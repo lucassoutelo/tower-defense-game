@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 from inimigo import Inimigo
 
 pygame.init()
@@ -7,6 +8,15 @@ pygame.init()
 #TAMANHO DA JANELA
 SCREEN_WIDTH = 800
 SCREEN_HEIGTH = 600
+
+#VARIÁVEIS DO JOGO
+level = 1
+level_difficulty = 0
+target_difficulty = 1000
+#MAX_INIMIGOS = 10
+INIMIGOS_TIMER = 1000
+last_inimigo = pygame.time.get_ticks()
+inimigos_vivos = 0
 
 #CRIA JANELA
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGTH))
@@ -17,7 +27,9 @@ FPS =  60
 
 #CARREGAR IMAGENS
 backgrund = pygame.image.load('img/bg4.jpg').convert_alpha()
-torreimg100 = pygame.image.load('img/torre/torre100.png').convert_alpha()
+torreimg100 = pygame.image.load('img/torre/castle_100.png').convert_alpha()
+torreimg50 = pygame.image.load('img/torre/castle_50.png').convert_alpha()
+torreimg25 = pygame.image.load('img/torre/castle_25.png').convert_alpha()
 
 #Imagem de balas
 bala_img =  pygame.image.load('img/bala.png').convert_alpha()
@@ -28,7 +40,7 @@ bala_img = pygame.transform.scale(bala_img, (int(b_width * 0.1), int(b_height * 
 #carregar inimigos
 inimigo_animacao = []
 tipos_inimigos = ['demonio', 'rato']
-inimigo_vida = [80]
+inimigo_vida = [40, 100]
 
 tipos_animacoes = ['andando', 'morto', 'atacando']
 
@@ -50,7 +62,7 @@ WHITE =  (255, 255, 255)
 
 #CLASSE TORRE
 class Torre():
-  def __init__(self, image100, x, y, scale):
+  def __init__(self, image100, image50, image25, x, y, scale):
     self.health = 1000
     self.max_health = self.health
     self.fired = False
@@ -61,6 +73,8 @@ class Torre():
     heigth = image100.get_height()
 
     self.image100 = pygame.transform.scale(image100, (int(width * scale), int(heigth * scale)))
+    self.image50 = pygame.transform.scale(image50, (int(width * scale), int(heigth * scale)))
+    self.image25 = pygame.transform.scale(image25, (int(width * scale), int(heigth * scale)))
     self.rect = self.image100.get_rect()
     self.rect.x = x
     self.rect.y = y
@@ -83,7 +97,13 @@ class Torre():
     #pygame.draw.line(screen, WHITE, (self.rect.midleft[0], self.rect.midleft[1]), (pos))
   
   def Draw(self):
-    self.image = self.image100
+    #checar qual imagem usar baseada na vida da torre
+    if self.health <= 250:
+      self.image = self.image25
+    elif self.health <= 500:
+      self.image =  self.image50
+    else:
+      self.image = self.image100
     screen.blit(self.image, self.rect)
 
 #CLASSE BALAS
@@ -110,15 +130,15 @@ class Bala(pygame.sprite.Sprite):
 
 
 #CRIAR TORRE
-torre = Torre(torreimg100, SCREEN_WIDTH - 250, SCREEN_HEIGTH - 300, 0.3)
+torre = Torre(torreimg100, torreimg50, torreimg25, SCREEN_WIDTH - 250, SCREEN_HEIGTH - 300, 0.2)
 
 #CRIAR GRUPOS
 grupo_balas = pygame.sprite.Group()
 grupo_inimigos = pygame.sprite.Group()
 
 #CRIAR INIMIGOS
-inimigo_1 = Inimigo(inimigo_vida[0], inimigo_animacao[0], 200, SCREEN_HEIGTH - 200, 1)
-grupo_inimigos.add(inimigo_1)
+#inimigo_1 = Inimigo(inimigo_vida[0], inimigo_animacao[0], 200, SCREEN_HEIGTH - 150, 1)
+#grupo_inimigos.add(inimigo_1)
 
 #JOGO EM LOOP
 run = True
@@ -138,6 +158,16 @@ while run:
 
   #movimenta balas
   grupo_balas.update()
+
+  #criar inimigos
+  #checar numero max de inimigos
+  if level_difficulty < target_difficulty:
+    if pygame.time.get_ticks() - last_inimigo > INIMIGOS_TIMER:
+      e = random.randint(0, len(tipos_inimigos) - 1)
+      inimigo = Inimigo(inimigo_vida[e], inimigo_animacao[e], -100, SCREEN_HEIGTH - 150, 1)
+      grupo_inimigos.add(inimigo)
+      last_inimigo = pygame.time.get_ticks()
+      level_difficulty += inimigo_vida[e]
 
   #eventos
   for event in pygame.event.get():
