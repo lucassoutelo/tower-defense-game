@@ -1,3 +1,4 @@
+#Jogo feito por Lucas Soutelo, Zedekias da Nóbrega e  Marcus Vinícius
 import pygame
 import math
 import random
@@ -13,10 +14,17 @@ SCREEN_HEIGTH = 600
 level = 1
 level_difficulty = 0
 target_difficulty = 1000
+DIFFICULTY_MULTIPLIER = 1.1
+game_over =  False
+next_level = False
 #MAX_INIMIGOS = 10
 INIMIGOS_TIMER = 1000
 last_inimigo = pygame.time.get_ticks()
 inimigos_vivos = 0
+
+#DEFINIR FONTE
+fonte = pygame.font.SysFont('Futura', 30)
+fonte_60 = pygame.font.SysFont('Futura', 60)
 
 #CRIA JANELA
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGTH))
@@ -59,6 +67,11 @@ for inimigos in tipos_inimigos:
 
 #definir cores
 WHITE =  (255, 255, 255)
+
+#função para mostrar texto na tela
+def draw_text(text, font, text_col, x, y):
+  img = font.render(text, True, text_col)
+  screen.blit(img,(x, y))
 
 #CLASSE TORRE
 class Torre():
@@ -168,6 +181,29 @@ while run:
       grupo_inimigos.add(inimigo)
       last_inimigo = pygame.time.get_ticks()
       level_difficulty += inimigo_vida[e]
+
+  #checar se inimigos surgiram
+  if level_difficulty >= target_difficulty:
+    inimigos_vivos = 0
+    for e in grupo_inimigos:
+      if e.alive == True:
+        inimigos_vivos += 1
+    #completar nível
+    if inimigos_vivos == 0 and next_level == False:
+      next_level = True
+      next_level_timer = pygame.time.get_ticks()
+
+  #ir para o próximo nível
+  if next_level == True:
+    draw_text('LEVEL COMPLETE!', fonte_60, WHITE, 200, 300)
+    if pygame.time.get_ticks() - next_level_timer > 1500:
+      next_level = False
+      level += 1
+      last_inimigo = pygame.time.get_ticks()
+      target_difficulty *= DIFFICULTY_MULTIPLIER
+      level_difficulty = 0
+      grupo_inimigos.empty()
+
 
   #eventos
   for event in pygame.event.get():
