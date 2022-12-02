@@ -1,6 +1,7 @@
 #Jogo feito por Lucas Soutelo, Zedekias da Nóbrega e  Marcus Vinícius
 import pygame
 import math
+import os
 import random
 from inimigo import Inimigo
 
@@ -17,10 +18,16 @@ target_difficulty = 1000
 DIFFICULTY_MULTIPLIER = 1.1
 game_over =  False
 next_level = False
+high_score = 0
 #MAX_INIMIGOS = 10
 INIMIGOS_TIMER = 1000
 last_inimigo = pygame.time.get_ticks()
 inimigos_vivos = 0
+
+#carregar high score
+if os.path.exists('score.txt'):
+  with open('score.txt', 'r') as file:
+    high_score = int(file.read)
 
 #DEFINIR FONTE
 fonte = pygame.font.SysFont('Futura', 30)
@@ -34,7 +41,7 @@ clock = pygame.time.Clock()
 FPS =  60
 
 #CARREGAR IMAGENS
-backgrund = pygame.image.load('img/bg4.jpg').convert_alpha()
+backgrund = pygame.image.load('img/bg_.png').convert_alpha()
 torreimg100 = pygame.image.load('img/torre/castle_100.png').convert_alpha()
 torreimg50 = pygame.image.load('img/torre/castle_50.png').convert_alpha()
 torreimg25 = pygame.image.load('img/torre/castle_25.png').convert_alpha()
@@ -67,11 +74,20 @@ for inimigos in tipos_inimigos:
 
 #definir cores
 WHITE =  (255, 255, 255)
+GREY = (100, 100, 100)
 
 #função para mostrar texto na tela
 def draw_text(text, font, text_col, x, y):
   img = font.render(text, True, text_col)
   screen.blit(img,(x, y))
+
+#mostrar score, ouro
+def show_info():
+  draw_text('Ouro: '+ str(torre.ouro), fonte, WHITE, 10, 10)
+  draw_text('Pontos: '+ str(torre.pontos), fonte, WHITE, 120, 10)
+  draw_text('Pontuação mais alta: '+ str(high_score), fonte, WHITE, 120, 35)
+  draw_text('Nível: '+ str(level), fonte, WHITE, SCREEN_WIDTH//2, 10)
+  draw_text('Torre: '+ str(torre.health) + '/'+ str(torre.max_health), fonte, WHITE, SCREEN_WIDTH - 230, SCREEN_HEIGTH - 50)
 
 #CLASSE TORRE
 class Torre():
@@ -158,52 +174,80 @@ run = True
 while run:
 
   clock.tick(FPS)
-  screen.blit(backgrund, (0,0))
+  if game_over == False:
+    screen.blit(backgrund, (0,0))
 
-  #desenha torre
-  torre.Draw()
-  torre.Shoot()
-  #desenha balas
-  grupo_balas.draw(screen)
+    #desenha torre
+    torre.Draw()
+    torre.Shoot()
+    #desenha balas
+    grupo_balas.draw(screen)
 
-  #desenha inimigos
-  grupo_inimigos.update(screen, torre, grupo_balas)
+    #desenha inimigos
+    grupo_inimigos.update(screen, torre, grupo_balas)
 
-  #movimenta balas
-  grupo_balas.update()
+    #mostrar informações
+    show_info()
 
-  #criar inimigos
-  #checar numero max de inimigos
-  if level_difficulty < target_difficulty:
-    if pygame.time.get_ticks() - last_inimigo > INIMIGOS_TIMER:
-      e = random.randint(0, len(tipos_inimigos) - 1)
-      inimigo = Inimigo(inimigo_vida[e], inimigo_animacao[e], -100, SCREEN_HEIGTH - 150, 1)
-      grupo_inimigos.add(inimigo)
-      last_inimigo = pygame.time.get_ticks()
-      level_difficulty += inimigo_vida[e]
+    #movimenta balas
+    grupo_balas.update()
 
-  #checar se inimigos surgiram
-  if level_difficulty >= target_difficulty:
-    inimigos_vivos = 0
-    for e in grupo_inimigos:
-      if e.alive == True:
-        inimigos_vivos += 1
-    #completar nível
-    if inimigos_vivos == 0 and next_level == False:
-      next_level = True
-      next_level_timer = pygame.time.get_ticks()
+    #criar inimigos
+    #checar numero max de inimigos
+    if level_difficulty < target_difficulty:
+      if pygame.time.get_ticks() - last_inimigo > INIMIGOS_TIMER:
+        e = random.randint(0, len(tipos_inimigos) - 1)
+        inimigo = Inimigo(inimigo_vida[e], inimigo_animacao[e], -100, SCREEN_HEIGTH - 150, 1)
+        grupo_inimigos.add(inimigo)
+        last_inimigo = pygame.time.get_ticks()
+        level_difficulty += inimigo_vida[e]
 
-  #ir para o próximo nível
-  if next_level == True:
-    draw_text('LEVEL COMPLETE!', fonte_60, WHITE, 200, 300)
-    if pygame.time.get_ticks() - next_level_timer > 1500:
-      next_level = False
-      level += 1
-      last_inimigo = pygame.time.get_ticks()
-      target_difficulty *= DIFFICULTY_MULTIPLIER
+    #checar se inimigos surgiram
+    if level_difficulty >= target_difficulty:
+      inimigos_vivos = 0
+      for e in grupo_inimigos:
+        if e.alive == True:
+          inimigos_vivos += 1
+      #completar nível
+      if inimigos_vivos == 0 and next_level == False:
+        next_level = True
+        next_level_timer = pygame.time.get_ticks()
+
+    #ir para o próximo nível
+    if next_level == True:
+      draw_text('NÍVEL CONCLUÍDO!', fonte_60, WHITE, 200, 300)
+      #update high score
+      if torre.pontos > high_score:
+        high_score = torre.pontos
+        with open('score.txt', 'w') as file:
+          file.write(str(high_score))
+      if pygame.time.get_ticks() - next_level_timer > 1500:
+        next_level = False
+        level += 1
+        last_inimigo = pygame.time.get_ticks()
+        target_difficulty *= DIFFICULTY_MULTIPLIER
+        level_difficulty = 0
+        grupo_inimigos.empty()
+    
+    if torre.health <= 0:
+      game_over = True
+  
+  else:
+    draw_text('FIM DE JOGO!', fonte, WHITE, 200, 300)
+    draw_text('PRESSIONE "A" PARA JOGAR NOVAMENTE', fonte, WHITE, 200, 335)
+    key = pygame.key.get_pressed()
+    if key[pygame.K_a]:
+      #resetar variáveis
+      game_over = False
+      level = 1
+      target_difficulty = 1000
       level_difficulty = 0
+      last_inimigo = pygame.time.get_ticks()
       grupo_inimigos.empty()
-
+      torre.pontos = 0
+      torre.health = 1000
+      torre.max_health = torre.health
+      torre.ouro = 0
 
   #eventos
   for event in pygame.event.get():

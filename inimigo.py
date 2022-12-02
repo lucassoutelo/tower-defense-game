@@ -39,7 +39,7 @@ class Inimigo(pygame.sprite.Sprite):
           target.health -= 15
           if target.health < 0:
             target.health = 0
-          print(target.health)
+          #print(target.health)
           self.last_attack = pygame.time.get_ticks()
       
       #checar se a vida chegou a 0
