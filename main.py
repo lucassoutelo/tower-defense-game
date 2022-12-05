@@ -42,9 +42,9 @@ FPS =  60
 
 #CARREGAR IMAGENS
 backgrund = pygame.image.load('img/bg_.png').convert_alpha()
-torreimg100 = pygame.image.load('img/torre/castle_100.png').convert_alpha()
-torreimg50 = pygame.image.load('img/torre/castle_50.png').convert_alpha()
-torreimg25 = pygame.image.load('img/torre/castle_25.png').convert_alpha()
+torreimg100 = pygame.image.load('img/torre/castelo_100_.png').convert_alpha()
+torreimg50 = pygame.image.load('img/torre/castelo_50_.png').convert_alpha()
+torreimg25 = pygame.image.load('img/torre/castelo_25_.png').convert_alpha()
 
 #Imagem de balas
 bala_img =  pygame.image.load('img/bala.png').convert_alpha()
