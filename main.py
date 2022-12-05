@@ -1,4 +1,4 @@
-#Jogo feito por Lucas Soutelo, Zedekias da Nóbrega e  Marcus Vinícius
+#Jogo feito por Lucas Soutelo, Zedekias da Nóbrega e  Marcus Vinícyus
 import pygame
 import math
 import os
@@ -57,7 +57,7 @@ inimigo_animacao = []
 tipos_inimigos = ['demonio', 'rato']
 inimigo_vida = [40, 100]
 
-tipos_animacoes = ['andando', 'morto', 'atacando']
+tipos_animacoes = ['andando', 'atacando', 'morto']
 
 for inimigos in tipos_inimigos:
   #carregar animacoes
