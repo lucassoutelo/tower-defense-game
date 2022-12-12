@@ -27,7 +27,7 @@ inimigos_vivos = 0
 #carregar high score
 if os.path.exists('score.txt'):
   with open('score.txt', 'r') as file:
-    high_score = int(file.read)
+    high_score = int(file.read())
 
 #DEFINIR FONTE
 fonte = pygame.font.SysFont('Futura', 30)
@@ -55,7 +55,7 @@ bala_img = pygame.transform.scale(bala_img, (int(b_width * 0.1), int(b_height * 
 #carregar inimigos
 inimigo_animacao = []
 tipos_inimigos = ['demonio', 'rato']
-inimigo_vida = [40, 100]
+inimigo_vida = [100, 150]
 
 tipos_animacoes = ['andando', 'atacando', 'morto']
 
@@ -114,7 +114,7 @@ class Torre():
     y_dist = -(pos[1] - self.rect.midleft[1])
     self.angle = math.degrees(math.atan2(y_dist, x_dist))
     
-    #get mouse_click
+    #get mouseclick
     if pygame.mouse.get_pressed()[0] and self.fired == False:
       self.fired = True
       bala = Bala(bala_img, self.rect.midleft[0], self.rect.midleft[1], self.angle)
